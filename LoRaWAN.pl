@@ -317,8 +317,11 @@ while (1){
 				$nconsumption{$sel} += $preamble*(2**$rx2sf)/$bw * ($Prx_w + $Pidle_w);
 				# plan the next transmission as soon as the duty cycle permits that
 				$at = airtime($sel_sf, $npkt{$sel});
-				$sel_sta = $sel_end + 2 + rand(3);
-				$sel_sta = $sel_end + 99*$at + rand(1) if ($sel_sta < ($ndc{$sel}{$sel_ch} + 99*$at));
+				if ($new_trans == 0){
+					$sel_sta = $sel_end + 2 + rand(3);
+				}else{
+					$sel_sta = $sel_end + 99*$at + rand(1) if ($sel_sta < ($ndc{$sel}{$sel_ch} + 99*$at));
+				}
 			}else{
 				$dropped_unc += 1;
 				$prev_seq{$sel} = $sel_seq;
@@ -498,7 +501,7 @@ while (1){
 		my $at = airtime($sf, $npkt{$dest}+$extra_bytes);
 		#$nperiod{$dest} = random_poisson(1, $period) if ($fixed_packet_rate == 0);
 		my $new_start = $sel_sta - $rwindow + $nperiod{$dest} + rand(1);
-		$new_start = $sel_sta - $rwindow + rand(3) if ($failed == 1);
+		$new_start = $sel_sta - $rwindow + rand(3) if ($failed == 1 && $new_start == 0);
 		my $next_allowed = $ndc{$dest}{$ch} + 99*$at;
 		if ($new_start < $next_allowed){
 			print "# warning! transmission will be postponed due to duty cycle restrictions!\n" if ($debug == 1);
